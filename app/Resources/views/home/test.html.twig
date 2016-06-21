@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %} Page {{ name }} {% endblock %}
+
+{% block body %}
+<h1>New Page with the name <b>{{ name }}</b></h1>
+
+<ul>
+    {% for text in texts %}
+        <li>{{ dump(text) }}</li>
+    {% endfor %}
+</ul>
+{% endblock %}
