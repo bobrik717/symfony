@@ -2,24 +2,61 @@
 
 namespace AppBundle\Controller;
 
+use AppBundle\Entity\Home;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class HomeController extends Controller
 {
     /**
-     * @Route("/test/{name}")
+     * @Route("/test/new")
+     */
+    public function newAction()
+    {
+        $text = new Home();
+        $text->setName('new-text'.rand(1,100));
+        $text->setSubFamaly('New SubFamaly');
+        $text->setSpeciesCount(rand(100,9999));
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($text);
+        $em->flush();
+
+        return new Response('<html><body>Text added</body></html>');
+    }
+
+    /**
+     * @Route("/home")
+     */
+    public function listAction()
+    {
+        $em = $this->getDoctrine()->getManager();
+        $text = $em->getRepository('AppBundle:Home')->findAllPublishedOrderBySize();
+
+        return $this->render('home/list.html.twig',[
+            'models' => $text,
+        ]);
+    }
+
+    /**
+     * @Route("/test/{name}", name="page_show")
      *
      * @param $name
      * @return Response
      */
     public function testAction($name)
     {
-        $funFact = 'Octopuses can change the color of their body in just *three-tenths* of a second!';
+        $em = $this->getDoctrine()->getManager();
+        $model = $em->getRepository('AppBundle:Home')->findOneBy(['name' => $name]);
 
+        if(!$model){
+            throw new NotFoundHttpException('Page dosn\'t exist');
+        }
+        /*
         $cache = $this->get('doctrine_cache.providers.my_markdown_cache');
 
         $key = md5($funFact);
@@ -29,10 +66,10 @@ class HomeController extends Controller
             $funFact = $this->get('markdown.parser')->transformMarkdown($funFact);
             $cache->save($key,$funFact);
         }
+        */
 
         return $this->render('home/test.html.twig',[
-            'name' => $name,
-            'fact' => $funFact,
+            'model' => $model
         ]);
     }
 

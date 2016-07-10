@@ -1,19 +1,19 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Genus {{ name }}{% endblock %}
+{% block title %}Genus {{ model.name }}{% endblock %}
 
 {% block body %}
-    <h2 class="genus-name">{{ name }}</h2>
+    <h2 class="genus-name">{{ model.name }}</h2>
     <div class="sea-creature-container">
         <div class="genus-photo"></div>
         <div class="genus-details">
             <dl class="genus-details-list">
                 <dt>Subfamily:</dt>
-                <dd>Octopodinae</dd>
+                <dd>{{ model.subFamaly }}</dd>
                 <dt>Known Species:</dt>
-                <dd>{{ '32434234'|number_format }}</dd>
+                <dd>{{ model.speciesCount|number_format }}</dd>
                 <dt>Fun Fact:</dt>
-                <dd>{{ fact|raw }}</dd>
+                <dd>{{ model.note }}</dd>
             </dl>
         </div>
     </div>
@@ -31,7 +31,7 @@
 
     <script type="text/babel">
 
-        var textUrl = '{{ path("site_show_text",{'name':name}) }}';
+        var textUrl = '{{ path("site_show_text",{'name':model.name}) }}';
 
         ReactDOM.render(
                 <NoteSection url={textUrl} />,

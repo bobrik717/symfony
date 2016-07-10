@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>
+                    Text
+                </th>
+                <th>
+                    # of species
+                </th>
+                <th>
+                    Last Updated
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for model in models %}
+                <tr>
+                    <td>
+                        <a href="{{ path('page_show',{'name': model.name}) }}">{{ model.name }}</a>
+                    </td>
+                    <td>{{ model.speciesCount }}</td>
+                    <td>{{ model.updatedAt|date('Y-m-d') }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
