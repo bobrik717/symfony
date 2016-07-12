@@ -5,3 +5,11 @@ AppBundle\Entity\Home:
         speciesCount: <numberBetween(100,100000)>
         note: <sentence()>
         isPublished: <boolean(75)>
+
+AppBundle\Entity\HomeNotes:
+    home.notes_{1..100}:
+        username: <userName()>
+        avatar: '50%? leanna.jpeg : ryan.jpeg'
+        note: <paragraph()>
+        createdAt: <dateTimeBetween('-6 months', 'now')>
+        home: '@home_*'

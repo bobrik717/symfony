@@ -10,12 +10,13 @@ class HomeRepository extends EntityRepository
     /**
      * @return Home[]
      */
-    public function findAllPublishedOrderBySize()
+    public function findAllPublishedOrderRecentlyActive()
     {
         return $this->createQueryBuilder('home')
             ->andWhere('home.isPublished = :isPublished')
             ->setParameter('isPublished',true)
-            ->orderBy('home.speciesCount','DESC')
+            ->leftJoin('home.notes', 'home_notes')
+            ->orderBy('home_notes.createdAt', 'DESC')
             ->getQuery()
             ->execute();
     }

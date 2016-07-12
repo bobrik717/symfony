@@ -3,6 +3,7 @@
 namespace AppBundle\Controller;
 
 use AppBundle\Entity\Home;
+use AppBundle\Entity\HomeNotes;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -22,8 +23,16 @@ class HomeController extends Controller
         $text->setSubFamaly('New SubFamaly');
         $text->setSpeciesCount(rand(100,9999));
 
+        $note = new HomeNotes();
+        $note->setUsername('AquaWeaver');
+        $note->setAvatar('ryan.jpeg');
+        $note->setNote('I counted 8 legs... as they wrapped around me');
+        $note->setCreatedAt(new \DateTime('-1 month'));
+        $note->setHome($text);
+
         $em = $this->getDoctrine()->getManager();
         $em->persist($text);
+        $em->persist($note);
         $em->flush();
 
         return new Response('<html><body>Text added</body></html>');
@@ -35,7 +44,7 @@ class HomeController extends Controller
     public function listAction()
     {
         $em = $this->getDoctrine()->getManager();
-        $text = $em->getRepository('AppBundle:Home')->findAllPublishedOrderBySize();
+        $text = $em->getRepository('AppBundle:Home')->findAllPublishedOrderRecentlyActive();
 
         return $this->render('home/list.html.twig',[
             'models' => $text,
@@ -68,8 +77,12 @@ class HomeController extends Controller
         }
         */
 
+        $countNotes = $em->getRepository('AppBundle:HomeNotes')
+            ->findAllRecentNotesForHome($model);
+
         return $this->render('home/test.html.twig',[
-            'model' => $model
+            'model' => $model,
+            'count' => count($countNotes),
         ]);
     }
 
@@ -77,16 +90,21 @@ class HomeController extends Controller
      * @Route("/test/{name}/text",name="site_show_text")
      * @Method("GET")
      *
-     * @param $name
+     * @param Home $home
      * @return JsonResponse
      */
-    public function getTextAction($name)
+    public function getTextAction(Home $home)
     {
-        $texts = [
-            ['id' => 1, 'username' => 'AquaPelham', 'avatarUri' => '/images/leanna.jpeg', 'note' => 'Octopus asked me a riddle, outsmarted me', 'date' => 'Dec. 10, 2015'],
-            ['id' => 2, 'username' => 'AquaWeaver', 'avatarUri' => '/images/ryan.jpeg', 'note' => 'I counted 8 legs... as they wrapped around me', 'date' => 'Dec. 1, 2015'],
-            ['id' => 3, 'username' => 'AquaPelham', 'avatarUri' => '/images/leanna.jpeg', 'note' => 'Inked!', 'date' => 'Aug. 20, 2015'],
-        ];
+        $texts = [];
+        foreach($home->getNotes() as $note){
+            $texts[] = [
+                'id' => $note->getId(),
+                'username' => $note->getUsername(),
+                'avatarUri' => '/images/' . $note->getAvatar(),
+                'note' => $note->getNote(),
+                'date' => $note->getCreatedAt()->format('Y-m-d')
+            ];
+        }
 
         $data = [
             'texts' => $texts,

@@ -2,6 +2,7 @@
 
 namespace AppBundle\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -39,7 +40,18 @@ class Home
     /**
      * @ORM\Column(type="boolean")
      */
-    private $isPublished;
+    private $isPublished = true;
+
+    /**
+     * @ORM\OneToMany(targetEntity="HomeNotes", mappedBy="home")
+     * @ORM\OrderBy({"createdAt" = "DESC"})
+     */
+    private $notes;
+
+    public function __construct()
+    {
+        $this->notes = new ArrayCollection();
+    }
 
     /**
      * @return boolean
@@ -124,5 +136,13 @@ class Home
     public function getUpdatedAt()
     {
         return new \DateTime('-'.rand(0,100). ' days');
+    }
+
+    /**
+     * @return ArrayCollection|HomeNotes[]
+     */
+    public function getNotes()
+    {
+        return $this->notes;
     }
 }
